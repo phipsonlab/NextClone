@@ -1,0 +1,12 @@
+name: extract_sc_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.8
+  - pysam
+  - pandas
+  - numpy
+  - Biopython
+  
