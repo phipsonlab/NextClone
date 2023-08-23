@@ -46,7 +46,7 @@ process ngs_prepare_clone_barcodes {
     cpus 1
     memory '2 GB'
     time '1 hours'
-    conda "${projectDir}/conda_env/custom_env.yaml"
+    conda "${projectDir}/conda_env/extract_ngs_env.yaml"
     tag "$sample_name"
 
     input:
@@ -81,7 +81,7 @@ process ngs_map_barcodes {
     cpus 1
     memory '4 GB'
     time '24 hours'
-    conda "${projectDir}/conda_env/custom_env.yaml"
+    conda "${projectDir}/conda_env/extract_ngs_env.yaml"
     tag "$sample_name"
     publishDir "$params.publish_dir/mapped_barcodes", mode: 'copy'
 
@@ -115,7 +115,7 @@ process ngs_collapse_barcodes {
     cpus 1
     memory '4 GB'
     time '1 hours'
-    conda "${projectDir}/conda_env/custom_env.yaml"
+    conda "${projectDir}/conda_env/extract_ngs_env.yaml"
     publishDir "$params.publish_dir", mode: 'copy'
 
     input:
