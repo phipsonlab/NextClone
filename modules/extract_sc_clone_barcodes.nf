@@ -49,7 +49,7 @@ process sc_split_unmapped_reads {
 
     """
     mkdir unmapped_chunks
-    sc_split_reads.py $unmapped_sam unmapped_chunks $params.n_reads_per_chunk
+    sc_split_reads.py $unmapped_sam unmapped_chunks $params.nreads_per_chunk
     """
 }
 
