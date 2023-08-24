@@ -11,30 +11,32 @@ bamfile = pysam.Samfile(sys.argv[1], "rb")
 
 bamfilename = os.path.splitext(os.path.basename(sys.argv[1]))[0]
 
-chunk = 0
-fout = None
-n_row = -1
-
 outdir = sys.argv[2]
-
 n_reads_per_chunk = int(sys.argv[3])
 
+# for storing reads that have no CB
+reads_missing_cb_file = sys.argv[4]
+
+next_chunk_id = 0
+fout = None
+n_row_written = 0
+
 for row in bamfile:
-    n_row += 1
 
     # have to check if the tag exists first as some reads appear to be missing CB
     if not row.has_tag("CB"):
-        with open(sys.argv[4], "a") as mcb:
+        # If the conde gets here, n_row_written, won't be updated
+        with open(reads_missing_cb_file, "a") as mcb:
             mcb.write(row.query_name)
             mcb.write("\n")
             continue
 
     # open a new fasta file to write
-    if n_row % n_reads_per_chunk == 0:
+    if n_row_written % n_reads_per_chunk == 0:
         if fout is not None:
             fout.close()
-        chunk += 1
-        fout = open(f"{outdir}/{bamfilename}_unmapped_chunk_{chunk}.fasta", "w")
+        fout = open(f"{outdir}/{bamfilename}_unmapped_chunk_{next_chunk_id}.fasta", "w")
+        next_chunk_id += 1
 
     # Attach the query name as well 
     cell_id = f"Cell_{row.get_tag('CB')}|{row.query_name}"
@@ -43,6 +45,8 @@ for row in bamfile:
     rec = SeqRecord.SeqRecord(seq, cell_id, "", "")
 
     SeqIO.write(rec, fout, "fasta")
+
+    n_row_written += 1
         
 if fout is not None:
     fout.close()
