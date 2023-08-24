@@ -5,13 +5,13 @@ process sc_get_unmapped_reads {
     publishDir "$params.publish_dir",  mode: 'copy'
 
     input:
-        path possorted_aligned_reads_bam_file
+        path bam_file
 
     output:
-        path 'unmapped_reads.bam'
+        path "${bam_file.baseName}_reads_unmapped.bam"
 
     """
-    samtools view -b -f 4 ${possorted_aligned_reads_bam_file} > unmapped_reads.bam
+    samtools view -h -b -f 4 ${bam_file} > ${bam_file.baseName}_reads_unmapped.bam
     """
 }
 
@@ -21,15 +21,18 @@ process sc_remove_low_qual_reads {
     time '1 hours'
     conda "${projectDir}/conda_env/extract_sc_env.yaml"
     publishDir "$params.publish_dir",  mode: 'copy'
-
+    
     input:
         path unmapped_bam
 
     output:
-        path "unmapped_filtered.bam"
+        path "${out_bam_file}"
+
+    script:
+        out_bam_file = "${unmapped_bam.baseName}_filtered.bam"
 
     """
-    sc_remove_low_qual_reads.py $unmapped_bam $params.phred_thres
+    sc_remove_low_qual_reads.py ${unmapped_bam} ${params.phred_thres} ${out_bam_file}
     """
 }
 
@@ -41,15 +44,18 @@ process sc_split_unmapped_reads {
     publishDir "$params.publish_dir",  mode: 'copy'
 
     input:
-    path unmapped_sam 
+        path unmapped_bam 
 
     output:
-        path "unmapped_chunks/unmapped_chunk_*.fasta"
-        path "reads_missing_cb.txt"
+        path "${outdir}/${unmapped_bam.baseName}_unmapped_chunk_*.fasta"
+        path "${reads_missing_cb_filename}"
 
+    script:
+        outdir = "${unmapped_bam.baseName}_unmapped_chunks"
+        reads_missing_cb_filename = "${unmapped_bam.baseName}_reads_missing_cb.txt"
     """
-    mkdir unmapped_chunks
-    sc_split_reads.py $unmapped_sam unmapped_chunks $params.nreads_per_chunk
+    mkdir ${outdir}
+    sc_split_reads.py ${unmapped_bam} ${outdir} ${params.nreads_per_chunk} ${reads_missing_cb_filename}
     """
 }
 
@@ -68,8 +74,8 @@ process sc_map_unmapped_reads {
     """
     #!/usr/bin/bash
     flexiplex \
-            -p ${params.adapter_5prime} \
-            -T ${params.adapter_3prime} \
+            -p ${params.adapter_5prime_clonmapper} \
+            -T ${params.adapter_3prime_clonmapper} \
             -b 20 \
             -u 0 \
             -f ${params.adapter_edit_distance} \
@@ -89,12 +95,15 @@ process sc_merge_barcodes {
     publishDir "${params.publish_dir}",  mode: 'copy'
 
     input:
-        path mapped_reads 
+        path mapped_reads
 
     output:
-        path "clone_barcodes.csv"
+        path "${outfile}"
+
+    script:
+        outfile = "clone_barcodes.csv"
 
     """
-    sc_merge_clone_barcodes.py $mapped_reads
+    sc_merge_clone_barcodes.py ${mapped_reads} ${outfile}
     """
 }

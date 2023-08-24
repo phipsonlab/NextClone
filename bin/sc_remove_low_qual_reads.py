@@ -7,11 +7,13 @@ import sys
 import pysam
 import numpy as np
 
-phred_threshold = int(sys.argv[2])
-bamfile = pysam.AlignmentFile(sys.argv[1], "rb", check_sq=False)
-out_bam = pysam.AlignmentFile("unmapped_filtered.bam", "wb", template=bamfile)
+pysam.index(sys.argv[1])
 
-for row in bamfile.fetch():
+phred_threshold = int(sys.argv[2])
+bamfile = pysam.Samfile(sys.argv[1], "rb")
+out_bam = pysam.Samfile(sys.argv[3], "wb", template=bamfile)
+
+for row in bamfile:
     phred_mean = np.mean(row.query_qualities)
     if phred_mean >= phred_threshold:
         out_bam.write(row)

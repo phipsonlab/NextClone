@@ -19,7 +19,7 @@ include {
 workflow {
 
     if (params.mode == 'NGS') {
-        ch_barcode_chunks = Channel.fromPath(params.ngs_fastq_files) | 
+        ch_barcode_chunks = Channel.fromPath("${params.ngs_fastq_files}/*.fastq") | 
             ngs_trim_reads |
             ngs_filter_reads |
             ngs_prepare_clone_barcodes
@@ -30,7 +30,7 @@ workflow {
     } 
     
     if (params.mode == 'scRNAseq') {
-        ch_unmapped_fastas = Channel.fromPath(params.possorted_aligned_reads_bam_file) | 
+        ch_unmapped_fastas = Channel.fromPath("${params.scrnaseq_bam_files}/*.bam") | 
             sc_get_unmapped_reads |
             sc_remove_low_qual_reads |
             sc_split_unmapped_reads
