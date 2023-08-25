@@ -1,17 +1,23 @@
 #!/usr/bin/env nextflow
 
 process sc_get_unmapped_reads {
-    module 'samtools'
+    // Using sambamba
+    module 'sambamba'
+    cpus 12
+    memory '32 GB'
+    time '24 hours'
     publishDir "$params.publish_dir",  mode: 'copy'
 
     input:
         path bam_file
 
     output:
-        path "${bam_file.baseName}_reads_unmapped.bam"
+        path "${out_bam_file}"
 
+    script:
+        out_bam_file = "${bam_file.baseName}_reads_unmapped.bam"
     """
-    samtools view -h -b -f 4 ${bam_file} > ${bam_file.baseName}_reads_unmapped.bam
+    sambamba view -t ${task.cpus} -F "unmapped" -f bam -o ${out_bam_file} ${bam_file}
     """
 }
 
@@ -55,6 +61,7 @@ process sc_split_unmapped_reads {
         reads_missing_cb_filename = "${unmapped_bam.baseName}_reads_missing_cb.txt"
     """
     mkdir ${outdir}
+    touch ${reads_missing_cb_filename}
     sc_split_reads.py ${unmapped_bam} ${outdir} ${params.nreads_per_chunk} ${reads_missing_cb_filename}
     """
 }
