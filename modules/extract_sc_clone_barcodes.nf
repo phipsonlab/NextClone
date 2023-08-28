@@ -86,7 +86,7 @@ process sc_map_unmapped_reads {
             -b 20 \
             -u 0 \
             -f ${params.adapter_edit_distance} \
-            -e 3 \
+            -e ${params.barcode_edit_distance} \
             -n ${unmapped_fasta.baseName} \
             -k ${params.clone_barcodes_reference} \
             $unmapped_fasta

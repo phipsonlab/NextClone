@@ -36,6 +36,7 @@ for i, row in df.iterrows():
         chunk += 1
         outfile_handle = open(f"{sample_name}_chunk{chunk}.fasta", "w")
     
+    # Add the word START as the dummy adapter for the barcode for Flexiplex
     rec = SeqRecord(
         seq=Seq(f"START{row['barcode']}"), 
         id=f"READ{i}", 

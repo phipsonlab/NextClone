@@ -5,12 +5,8 @@
 import sys
 import pandas as pd
 
-from os import listdir
-from os.path import isfile, join
+chunk_files = sys.argv[1: len(sys.argv)-1]
 
-basedir = sys.argv[1]
-chunks = [join(basedir, f) for f in listdir(basedir) if isfile(join(basedir, f))]
-
-df = pd.concat((pd.read_csv(x) for x in chunks), ignore_index=True)
+df = pd.concat((pd.read_csv(x) for x in chunk_files), ignore_index=True)
 barcode_count = df[['known_barcode','read_count', 'sample_name']].groupby(['sample_name','known_barcode']).sum()
 barcode_count.to_csv("clone_barcode_counts.csv")
