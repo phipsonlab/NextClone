@@ -5,7 +5,7 @@ process ngs_trim_reads {
     memory '8 GB'
     time '2 hours'
     conda "${projectDir}/conda_env/trimgalore_env.yaml"
-    publishDir "${params.publish_dir}"
+    publishDir "${params.publish_dir}", mode: 'copy'
     module "cutadapt"
 
     input:
@@ -15,15 +15,12 @@ process ngs_trim_reads {
         path "${out_file}"
 
     script:
-    out_file = fastq_file.getSimpleName() + "_trimmed.fq.gz"
-    orig_out_file = fastq_file.getSimpleName() + ".${params.trim_reads_to}bp_5prime.fq.gz"
+    out_file = fastq_file.getSimpleName() + ".${params.trim_reads_to}bp_5prime.fq.gz"
     
     """
     trim_galore --hardtrim5 ${params.trim_reads_to} \
                 --cores ${task.cpus} $fastq_file \
                 --gzip
-    
-    mv ${orig_out_file} ${out_file}
     
     """
 }
@@ -39,7 +36,7 @@ process ngs_filter_reads {
         path fastq_file
 
     output:
-        path out_file
+        path "${out_file}"
 
     script:
     out_file = fastq_file.getSimpleName() + "_filtered.fq.gz"
@@ -54,26 +51,23 @@ process ngs_filter_reads {
 }
 
 process ngs_count_reads {
-    // Add dummy adapters, run flexiplex discovery, break up the barcodes into chunks
-    cpus 1
-    memory '2 GB'
+    // Add dummy adapters, run flexiplex discovery
+    cpus 4
+    memory '8 GB'
     time '1 hours'
-    conda "${projectDir}/conda_env/extract_ngs_env.yaml"
-    tag "${sample_name}"
-    publishDir "${params.publish_dir}/${sample_name}/fasta_chunks", mode: 'copy'
+    publishDir "${params.publish_dir}", mode: 'copy'
 
     input:
         path fastq_file
 
     output:
-        path '*_chunk*.fasta'
+        path "${sample_name}_barcodes_counts.txt"
 
     script:
     sample_name = fastq_file.getSimpleName()
     fastq_w_adapter = sample_name + "_wDummyAdaptor.fq"
-    barcode_counts = sample_name + "_barcodes_counts.txt"
     """
-    zcat $fastq_file | sed 's/^/START/g' | sed 's/START@/@/g' > $fastq_w_adapter
+    zcat $fastq_file | sed 's/^/START/g' | sed 's/START@/@/g' > ${fastq_w_adapter}
     
     flexiplex \
         -p "START" \
@@ -83,10 +77,33 @@ process ngs_count_reads {
         -f 0 \
         -n $sample_name \
         ${fastq_w_adapter}
+    
+    """
+}
 
+process ngs_split_reads_to_chunks {
+    // Add dummy adapters, run flexiplex discovery, break up the barcodes into chunks
+    cpus 4
+    memory '8 GB'
+    time '1 hours'
+    conda "${projectDir}/conda_env/extract_ngs_env.yaml"
+    publishDir "${params.publish_dir}", mode: 'copy'
+
+    input:
+        path barcode_counts
+
+    output:
+        path "${outdir}/${barcode_counts.baseName}_unmapped_chunk_*.fasta"
+
+    script:
+        outdir = "${barcode_counts.baseName}_unmapped_chunks"
+
+    """
+    mkdir ${outdir}
     ngs_break_up_barcodes.py --barcode_file ${barcode_counts} \
-                                --sample_name ${sample_name} \
-                                --nreads_per_chunk ${params.nreads_per_chunk}
+                                --sample_name ${barcode_counts.baseName} \
+                                --nreads_per_chunk ${params.nreads_per_chunk} \
+                                --outdir ${outdir}
     
     """
 }
@@ -95,18 +112,17 @@ process ngs_map_barcodes {
     // Ran flexiplex per fasta chunk
     // Then combine the counting of read (flexiplex discovery)
     // and the mapped barcode
-    cpus 20
+    cpus 2
     memory '4 GB'
     time '24 hours'
     conda "${projectDir}/conda_env/extract_ngs_env.yaml"
-    tag "${sample_name}"
-    publishDir "${params.publish_dir}/${sample_name}/mapped_barcodes", mode: 'copy'
+    publishDir "${params.publish_dir}", mode: 'copy'
 
     input:
         path unmapped_fasta
 
     output:
-        path out_file
+        path "${out_file}"
 
     script:
     sample_name = unmapped_fasta.getSimpleName()
@@ -123,8 +139,7 @@ process ngs_map_barcodes {
         -n ${sample_name} \
         -k ${params.clone_barcodes_reference} \
         -e ${params.barcode_edit_distance} \
-        -p ${task.cpus} \
-        $unmapped_fasta
+        ${unmapped_fasta}
 
     ngs_combine_mapped_and_discovery_barcodes.py --unmapped_chunk ${unmapped_fasta} \
                                                     --mapped_chunk ${mapped_chunk} \
