@@ -4,6 +4,7 @@ include {
     ngs_trim_reads;
     ngs_filter_reads;
     ngs_count_reads;
+    ngs_split_reads_to_chunks;
     ngs_map_barcodes;
     ngs_collapse_barcodes
 } from "./modules/extract_ngs_barcodes"
@@ -22,7 +23,8 @@ workflow {
         ch_barcode_chunks = Channel.fromPath("${params.ngs_fastq_files}/*.fastq") | 
             ngs_trim_reads |
             ngs_filter_reads |
-            ngs_count_reads
+            ngs_count_reads |
+            ngs_split_reads_to_chunks
         
         ch_barcode_mappings = ngs_map_barcodes(ch_barcode_chunks.flatten())
         ngs_collapse_barcodes(ch_barcode_mappings.collect())

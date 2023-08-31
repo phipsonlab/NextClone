@@ -82,7 +82,7 @@ process ngs_count_reads {
 }
 
 process ngs_split_reads_to_chunks {
-    // Add dummy adapters, run flexiplex discovery, break up the barcodes into chunks
+    // break up the barcodes into chunks
     cpus 4
     memory '8 GB'
     time '1 hours'
@@ -113,8 +113,9 @@ process ngs_map_barcodes {
     // Then combine the counting of read (flexiplex discovery)
     // and the mapped barcode
     cpus 2
-    memory '4 GB'
-    time '24 hours'
+    memory '8 GB'
+    time '96 hours'
+    queue 'long'
     conda "${projectDir}/conda_env/extract_ngs_env.yaml"
     publishDir "${params.publish_dir}", mode: 'copy'
 
@@ -141,9 +142,9 @@ process ngs_map_barcodes {
         -e ${params.barcode_edit_distance} \
         ${unmapped_fasta}
 
-    ngs_combine_mapped_and_discovery_barcodes.py --unmapped_chunk ${unmapped_fasta} \
-                                                    --mapped_chunk ${mapped_chunk} \
-                                                    --out_file ${out_file}
+    ngs_combine_read_cnt_map.py --unmapped_chunk ${unmapped_fasta} \
+                                --mapped_chunk ${mapped_chunk} \
+                                --out_file ${out_file}
     """
 }
 
