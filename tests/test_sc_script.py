@@ -9,7 +9,7 @@ from sc_split_reads import split_reads
 
 def test_low_qual_reads_removed(tmp_path):
 
-    input_bam = "data/mix_qual_reads.bam"
+    input_bam = "data/sc/mix_qual_reads.bam"
     out_bam = f"{tmp_path}/high_qual_reads.bam"
 
     remove_low_qual_reads(input_bam, out_bam, 30)
@@ -39,7 +39,8 @@ def test_low_qual_reads_removed(tmp_path):
     assert len(np.setdiff1d(expected_read_ids, actual_read_ids)) == 0
 
 def test_split_reads_start_withCB(tmp_path):
-    input_bam = "data/mix_with_without_cb_start_withCB.bam"
+    
+    input_bam = "data/sc/mix_with_without_cb_start_withCB.bam"
     reads_missing_cb = f"{tmp_path}/mix_with_without_cb_start_withCB_missing_cb.txt"
 
     split_reads(
@@ -100,7 +101,7 @@ def test_split_reads_start_withCB(tmp_path):
         assert len(np.setdiff1d(expected_missingCB_read_ids, lines)) == 0
 
 def test_split_reads_start_withoutCB(tmp_path):
-    input_bam = "data/mix_with_without_cb_start_withoutCB.bam"
+    input_bam = "data/sc/mix_with_without_cb_start_withoutCB.bam"
     reads_missing_cb = f"{tmp_path}/mix_with_without_cb_start_withoutCB_missing_cb.txt"
 
     split_reads(

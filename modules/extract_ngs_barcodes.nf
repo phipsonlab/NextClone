@@ -93,14 +93,14 @@ process ngs_split_reads_to_chunks {
         path barcode_counts
 
     output:
-        path "${outdir}/${barcode_counts.baseName}_unmapped_chunk_*.fasta"
+        path "${outdir}/${barcode_counts.baseName}_chunk*.fasta"
 
     script:
         outdir = "${barcode_counts.baseName}_unmapped_chunks"
 
     """
     mkdir ${outdir}
-    ngs_break_up_barcodes.py --barcode_file ${barcode_counts} \
+    ngs_split_reads.py --barcode_file ${barcode_counts} \
                                 --sample_name ${barcode_counts.baseName} \
                                 --nreads_per_chunk ${params.nreads_per_chunk} \
                                 --outdir ${outdir}
@@ -163,6 +163,6 @@ process ngs_collapse_barcodes {
 
     script:
     """
-    ngs_count_barcodes.py ${mapped_reads}
+    ngs_count_barcodes.py . ${mapped_reads}
     """
 }

@@ -1,0 +1,2 @@
+read_id,read_count,sample_name,read_sequence,Read,known_barcode,FlankEditDist,BarcodeEditDist,UMI
+READ3,10,test2,AGGGGAGTCGCGTGGTAGGC,READ0,AGGGGAGTCGCGTGGTAGGC,0,0,<NA>
