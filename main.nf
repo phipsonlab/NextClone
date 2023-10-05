@@ -12,6 +12,7 @@ include {
 include { 
     sc_get_unmapped_reads;
     sc_remove_low_qual_reads;
+    sc_retain_reads_with_CB_tag;
     sc_split_unmapped_reads;
     sc_map_unmapped_reads;
     sc_merge_barcodes 
@@ -20,7 +21,7 @@ include {
 workflow {
 
     if (params.mode == 'NGS') {
-        ch_barcode_chunks = Channel.fromPath("${params.ngs_fastq_files}/*.fastq") | 
+        ch_barcode_chunks = Channel.fromPath("${params.ngs_fastq_files}/*.fastq.gz") | 
             ngs_trim_reads |
             ngs_filter_reads |
             ngs_count_reads |
@@ -35,6 +36,7 @@ workflow {
         ch_unmapped_fastas = Channel.fromPath("${params.scrnaseq_bam_files}/*.bam") | 
             sc_get_unmapped_reads |
             sc_remove_low_qual_reads |
+            sc_retain_reads_with_CB_tag |
             sc_split_unmapped_reads
         
         ch_mapped_fastas = sc_map_unmapped_reads(ch_unmapped_fastas[0].flatten())

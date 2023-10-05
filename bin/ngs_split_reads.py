@@ -5,13 +5,15 @@
 import argparse
 import pandas as pd
 
+from math import ceil
+
 # Use BioPython - yes even though we can just write it out using normal fwrite.
 # Just so it's more conforming to standards.
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
 from Bio import SeqIO
 
-def split_reads(infile_name, sample_name, n_reads_per_chunk, outdir):
+def split_reads(infile_name, sample_name, n_chunks, outdir):
     """
     Splits Flexiplex read counts into chunks.
 
@@ -26,8 +28,8 @@ def split_reads(infile_name, sample_name, n_reads_per_chunk, outdir):
         Path to the file containing read counts produced by Flexiplex.
     sample_name : str
         Identifier for the sample associated with the read counts. Used as a prefix for the chunk filenames.
-    n_reads_per_chunk : int
-        Specifies the desired number of reads for each chunk.
+    n_chunks : int
+        Specifies the desired number of chunks to divide the reads into.
     outdir : str
         Directory where the generated chunk files will be saved.
     """
@@ -38,12 +40,16 @@ def split_reads(infile_name, sample_name, n_reads_per_chunk, outdir):
     chunk = 0
     outfile_handle = None
 
+    # calculate how many reads to put in each chunk
+    n_reads_per_chunk = ceil(df.shape[0] / n_chunks)
+
     for i, row in df.iterrows():
         if i % n_reads_per_chunk == 0:
             if outfile_handle is not None:
                 outfile_handle.close()
-            chunk += 1
             outfile_handle = open(f"{outdir}/{sample_name}_chunk{chunk}.fasta", "w")
+            chunk += 1
+            
         
         # Add the word START as the dummy adapter for the barcode for Flexiplex
         rec = SeqRecord(
@@ -61,7 +67,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--barcode_file", help="Barcode count output by Flexiplex discovery")
     parser.add_argument("--sample_name", help="Name of the sample")
-    parser.add_argument("--nreads_per_chunk", help="Number of reads per chunk/Fasta file", type=int)
+    parser.add_argument("--n_chunks", help="Number chunks to divide the reads into", type=int)
     parser.add_argument("--outdir", help="Output directory")
 
     args = parser.parse_args()
@@ -69,7 +75,7 @@ if __name__ == "__main__":
     split_reads(
         infile_name=args.barcode_file, 
         sample_name=args.sample_name, 
-        n_reads_per_chunk=args.nreads_per_chunk,
+        n_chunks=args.n_chunks,
         outdir=args.outdir
     )
 

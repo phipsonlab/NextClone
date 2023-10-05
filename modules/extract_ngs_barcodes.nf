@@ -102,7 +102,7 @@ process ngs_split_reads_to_chunks {
     mkdir ${outdir}
     ngs_split_reads.py --barcode_file ${barcode_counts} \
                                 --sample_name ${barcode_counts.baseName} \
-                                --nreads_per_chunk ${params.nreads_per_chunk} \
+                                --n_chunks ${params.n_chunks} \
                                 --outdir ${outdir}
     
     """

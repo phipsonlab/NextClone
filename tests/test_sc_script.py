@@ -38,121 +38,127 @@ def test_low_qual_reads_removed(tmp_path):
     assert len(np.setdiff1d(actual_read_ids, expected_read_ids)) == 0
     assert len(np.setdiff1d(expected_read_ids, actual_read_ids)) == 0
 
-def test_split_reads_start_withCB(tmp_path):
+def test_split_reads_start(tmp_path):
     
-    input_bam = "data/sc/mix_with_without_cb_start_withCB.bam"
-    reads_missing_cb = f"{tmp_path}/mix_with_without_cb_start_withCB_missing_cb.txt"
+    input_bam = "data/sc/unmapped_reads.bam"
+    n_chunks = 4
+    # 25 reads, 4 chunks
+    exp_n_reads = [7,7,7,4]
 
     split_reads(
         input_bam_filename=input_bam,
         outdir=tmp_path,
-        n_reads_per_chunk=3,
-        reads_missing_cb_file=reads_missing_cb
+        n_chunks=n_chunks
     )
 
     expected_splitted_read_ids = [
-        "A00121:674:HVMHWDSX3:1:2537:28664:28808",
-        "A00121:674:HVMHWDSX3:2:2440:12861:33254",
-        "A00121:674:HVMHWDSX3:1:2532:27389:27289",
-        "A00121:674:HVMHWDSX3:2:2367:30689:29528",
-        "A00121:674:HVMHWDSX3:2:2563:22815:36714",
-        "A00121:674:HVMHWDSX3:2:2642:31575:32221",
-        "A00121:674:HVMHWDSX3:2:2175:7500:13072",
-        "A00121:674:HVMHWDSX3:1:2449:16034:8155",
-        "A00121:674:HVMHWDSX3:1:1675:16721:4366",
-        "A00121:674:HVMHWDSX3:2:2638:15130:6057",
-        "A00121:674:HVMHWDSX3:1:1247:17291:26428"
+        "A00121:674:HVMHWDSX3:2:2462:6705:33207", 
+        "A00121:674:HVMHWDSX3:1:1550:9091:25974", 
+        "A00121:674:HVMHWDSX3:2:2667:10827:26287", 
+        "A00121:674:HVMHWDSX3:2:1529:6063:21637", 
+        "A00121:674:HVMHWDSX3:2:1643:29261:30592", 
+        "A00121:674:HVMHWDSX3:1:2546:16857:10426", 
+        "A00121:674:HVMHWDSX3:1:1277:22815:33082", 
+        "A00121:674:HVMHWDSX3:1:1577:3956:6872", 
+        "A00121:674:HVMHWDSX3:1:2666:5312:29543", 
+        "A00121:674:HVMHWDSX3:1:1403:2935:14935", 
+        "A00121:674:HVMHWDSX3:2:2161:27923:26929", 
+        "A00121:674:HVMHWDSX3:2:1606:27371:32800", 
+        "A00121:674:HVMHWDSX3:2:2259:28320:13369", 
+        "A00121:674:HVMHWDSX3:1:2270:4607:11569", 
+        "A00121:674:HVMHWDSX3:2:2354:16152:8672", 
+        "A00121:674:HVMHWDSX3:2:2377:9390:16376", 
+        "A00121:674:HVMHWDSX3:2:2516:11089:10394", 
+        "A00121:674:HVMHWDSX3:1:2531:18439:16172", 
+        "A00121:674:HVMHWDSX3:1:1265:15203:3615", 
+        "A00121:674:HVMHWDSX3:2:2566:27407:4147", 
+        "A00121:674:HVMHWDSX3:1:2152:18231:1908", 
+        "A00121:674:HVMHWDSX3:1:1248:16089:33270", 
+        "A00121:674:HVMHWDSX3:1:1355:23104:8500", 
+        "A00121:674:HVMHWDSX3:1:1134:25536:14152", 
+        "A00121:674:HVMHWDSX3:1:1540:28628:31093"
     ]
 
-    expected_missingCB_read_ids = [
-        "A00121:674:HVMHWDSX3:2:2335:19334:1031",
-        "A00121:674:HVMHWDSX3:1:2320:18322:36980",
-        "A00121:674:HVMHWDSX3:2:1325:14036:5259",
-        "A00121:674:HVMHWDSX3:2:2557:27190:7874",
-        "A00121:674:HVMHWDSX3:2:2556:29053:22811",
-        "A00121:674:HVMHWDSX3:2:2201:7319:16172",
-        "A00121:674:HVMHWDSX3:2:1376:24985:28040",
-        "A00121:674:HVMHWDSX3:2:2375:4327:36667",
-        "A00121:674:HVMHWDSX3:1:1348:20076:26303",
-        "A00121:674:HVMHWDSX3:1:1348:20048:26318",
-        "A00121:674:HVMHWDSX3:1:2247:1750:19460"
-    ]
-
-    n_expected_chunks = 4
-
-    for i in range(n_expected_chunks):
-        assert os.path.exists(f"{tmp_path}/mix_with_without_cb_start_withCB_unmapped_chunk_{i}.fasta")
-    
-    # Check the content of the fasta file
+    # For checking the content of the fasta file
     actual_splitted_read_ids = []
-    for i in range(n_expected_chunks):
-        with pysam.FastxFile(f"{tmp_path}/mix_with_without_cb_start_withCB_unmapped_chunk_{i}.fasta") as fasta:
+    
+    for i in range(n_chunks):
+        # Check first that the file exists
+        assert os.path.exists(f"{tmp_path}/unmapped_reads_unmapped_chunk_{i}.fasta")
+
+        with pysam.FastxFile(f"{tmp_path}/unmapped_reads_unmapped_chunk_{i}.fasta") as fasta:
+            
+            n_reads_in_file = 0
+
             for read in fasta:
-                actual_splitted_read_ids.append(
-                    read.name.split("|")[1]
-                )
+                actual_splitted_read_ids.append(read.name.split("|")[1])
+                n_reads_in_file += 1
+            
+            assert n_reads_in_file == exp_n_reads[i]
+
     assert len(np.setdiff1d(actual_splitted_read_ids, expected_splitted_read_ids)) == 0
     assert len(np.setdiff1d(expected_splitted_read_ids, actual_splitted_read_ids)) == 0
 
-    # Check the content of reads missing cb
-    with open(reads_missing_cb, 'r') as file:
-        lines = [line.strip() for line in file]
-        assert len(np.setdiff1d(lines, expected_missingCB_read_ids)) == 0
-        assert len(np.setdiff1d(expected_missingCB_read_ids, lines)) == 0
-
-def test_split_reads_start_withoutCB(tmp_path):
-    input_bam = "data/sc/mix_with_without_cb_start_withoutCB.bam"
-    reads_missing_cb = f"{tmp_path}/mix_with_without_cb_start_withoutCB_missing_cb.txt"
+def test_split_reads_more_chunks_than_reads(tmp_path):
+    
+    input_bam = "data/sc/unmapped_reads.bam"
+    n_chunks = 27
+    n_reads_in_bam = 25
+    exp_n_reads = [1] * n_reads_in_bam
 
     split_reads(
         input_bam_filename=input_bam,
         outdir=tmp_path,
-        n_reads_per_chunk=3,
-        reads_missing_cb_file=reads_missing_cb
+        n_chunks=n_chunks
     )
 
     expected_splitted_read_ids = [
-        "A00121:674:HVMHWDSX3:2:1417:1678:36620",
-        "A00121:674:HVMHWDSX3:2:1417:1651:36135",
-        "A00121:674:HVMHWDSX3:2:2128:20057:9298",
-        "A00121:674:HVMHWDSX3:1:1631:30355:27352",
-        "A00121:674:HVMHWDSX3:1:1616:18340:32471",
-        "A00121:674:HVMHWDSX3:2:2239:6361:9251",
-        "A00121:674:HVMHWDSX3:2:2239:5719:18756",
-        "A00121:674:HVMHWDSX3:1:1227:28094:9001",
-        "A00121:674:HVMHWDSX3:1:2126:28700:36573",
-        "A00121:674:HVMHWDSX3:2:2402:5755:19664",
-        "A00121:674:HVMHWDSX3:2:1152:19804:13902"
+        "A00121:674:HVMHWDSX3:2:2462:6705:33207", 
+        "A00121:674:HVMHWDSX3:1:1550:9091:25974", 
+        "A00121:674:HVMHWDSX3:2:2667:10827:26287", 
+        "A00121:674:HVMHWDSX3:2:1529:6063:21637", 
+        "A00121:674:HVMHWDSX3:2:1643:29261:30592", 
+        "A00121:674:HVMHWDSX3:1:2546:16857:10426", 
+        "A00121:674:HVMHWDSX3:1:1277:22815:33082", 
+        "A00121:674:HVMHWDSX3:1:1577:3956:6872", 
+        "A00121:674:HVMHWDSX3:1:2666:5312:29543", 
+        "A00121:674:HVMHWDSX3:1:1403:2935:14935", 
+        "A00121:674:HVMHWDSX3:2:2161:27923:26929", 
+        "A00121:674:HVMHWDSX3:2:1606:27371:32800", 
+        "A00121:674:HVMHWDSX3:2:2259:28320:13369", 
+        "A00121:674:HVMHWDSX3:1:2270:4607:11569", 
+        "A00121:674:HVMHWDSX3:2:2354:16152:8672", 
+        "A00121:674:HVMHWDSX3:2:2377:9390:16376", 
+        "A00121:674:HVMHWDSX3:2:2516:11089:10394", 
+        "A00121:674:HVMHWDSX3:1:2531:18439:16172", 
+        "A00121:674:HVMHWDSX3:1:1265:15203:3615", 
+        "A00121:674:HVMHWDSX3:2:2566:27407:4147", 
+        "A00121:674:HVMHWDSX3:1:2152:18231:1908", 
+        "A00121:674:HVMHWDSX3:1:1248:16089:33270", 
+        "A00121:674:HVMHWDSX3:1:1355:23104:8500", 
+        "A00121:674:HVMHWDSX3:1:1134:25536:14152", 
+        "A00121:674:HVMHWDSX3:1:1540:28628:31093"
     ]
 
-    expected_missingCB_read_ids = [
-        "A00121:674:HVMHWDSX3:2:2335:19334:1031",
-        "A00121:674:HVMHWDSX3:1:2320:18322:36980"
-    ]
-
-    n_expected_chunks = 4
-
-    for i in range(n_expected_chunks):
-        assert os.path.exists(f"{tmp_path}/mix_with_without_cb_start_withoutCB_unmapped_chunk_{i}.fasta")
-    
-    # Check the content of the fasta file
+    # For checking the content of the fasta file
     actual_splitted_read_ids = []
-    for i in range(n_expected_chunks):
-        with pysam.FastxFile(f"{tmp_path}/mix_with_without_cb_start_withoutCB_unmapped_chunk_{i}.fasta") as fasta:
+    
+    for i in range(n_reads_in_bam):
+        # Check first that the file exists
+        assert os.path.exists(f"{tmp_path}/unmapped_reads_unmapped_chunk_{i}.fasta")
+
+        with pysam.FastxFile(f"{tmp_path}/unmapped_reads_unmapped_chunk_{i}.fasta") as fasta:
+            
+            n_reads_in_file = 0
+
             for read in fasta:
-                actual_splitted_read_ids.append(
-                    read.name.split("|")[1]
-                )
+                actual_splitted_read_ids.append(read.name.split("|")[1])
+                n_reads_in_file += 1
+            
+            assert n_reads_in_file == exp_n_reads[i]
+
+    assert not os.path.exists(f"{tmp_path}/unmapped_reads_unmapped_chunk_25.fasta")
+    assert not os.path.exists(f"{tmp_path}/unmapped_reads_unmapped_chunk_26.fasta")
+
     assert len(np.setdiff1d(actual_splitted_read_ids, expected_splitted_read_ids)) == 0
     assert len(np.setdiff1d(expected_splitted_read_ids, actual_splitted_read_ids)) == 0
-
-    # Check the content of reads missing cb
-    with open(reads_missing_cb, 'r') as file:
-        lines = [line.strip() for line in file]
-        assert len(np.setdiff1d(lines, expected_missingCB_read_ids)) == 0
-        assert len(np.setdiff1d(expected_missingCB_read_ids, lines)) == 0
-
-    
-    
-     
-    

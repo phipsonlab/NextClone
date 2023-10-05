@@ -42,6 +42,34 @@ process sc_remove_low_qual_reads {
     """
 }
 
+process sc_retain_reads_with_CB_tag {
+    // Using sambamba
+    module 'sambamba'
+    cpus 12
+    memory '32 GB'
+    time '24 hours'
+    publishDir "$params.publish_dir",  mode: 'copy'
+
+    input:
+        path bam_file
+
+    output:
+        path "${out_bam_file}"
+
+    script:
+        out_bam_file = "${bam_file.baseName}_withCB.bam"
+    
+    """
+    #!/usr/bin/bash
+    sambamba view \
+        -F "([CB] != null)" \
+        -t ${task.cpus} \
+        -f bam \
+        -o ${out_bam_file} \
+        ${bam_file}
+    """
+}
+
 process sc_split_unmapped_reads {
     cpus 4
     memory '24 GB'
@@ -62,7 +90,11 @@ process sc_split_unmapped_reads {
     """
     mkdir ${outdir}
     touch ${reads_missing_cb_filename}
-    sc_split_reads.py ${unmapped_bam} ${outdir} ${params.nreads_per_chunk} ${reads_missing_cb_filename}
+    
+    sc_split_reads.py \
+        --input_bam_filename ${unmapped_bam} \
+        --outdir ${outdir} \
+        --n_chunks ${params.n_chunks}
     """
 }
 

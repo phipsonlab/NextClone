@@ -8,18 +8,18 @@ from ngs_split_reads import split_reads
 from ngs_combine_read_cnt_map import combine_read_cnt_and_map
 from ngs_count_barcodes import count_barcodes
 
-def test_split_reads_even_nreads(tmp_path):
+def test_split_reads_uneven_chunks(tmp_path):
 
     infile = "data/ngs/barcodes_counts.txt"
     sample_name = "test"
-    n_reads_per_chunk = 2
-    # should only be 3 chunks as we only have 5 reads in it
-    exp_n_chunks = 3
+    n_chunks = 3
+    # each chunk should only have at most 2 reads as we only have 5 reads in the data.
+    exp_n_reads = [2,2,1]
     
     split_reads(
         infile_name=infile, 
         sample_name=sample_name, 
-        n_reads_per_chunk=n_reads_per_chunk, 
+        n_chunks=n_chunks, 
         outdir=tmp_path
     )
 
@@ -37,30 +37,98 @@ def test_split_reads_even_nreads(tmp_path):
             sequences.append(seq_value)
             counts.append(int(cnt_value))
 
+    # to keep track of the code that check the sequences and counts of each reads
     n_line = 0
-    for i in range(exp_n_chunks):
-        fasta_file = f"{tmp_path}/{sample_name}_chunk{i+1}.fasta"
+    for i in range(n_chunks):
+        # first check the chunk exists
+        fasta_file = f"{tmp_path}/{sample_name}_chunk{i}.fasta"
         assert os.path.exists(fasta_file)
 
         with open(fasta_file, 'r') as f:
+
+            # to check the number of reads in each chunk
+            n_reads_in_file = 0
+
+            # Check that the reads in each file is correct,
+            # i.e., the same as those in the infile
             for record in SeqIO.parse(f, "fasta"):
                 exp_desc = f"READ{n_line} count.{counts[n_line]},sample.{sample_name}"
                 exp_sequence = f"START{sequences[n_line]}"
                 assert record.description == exp_desc, f"Expected: {exp_desc}, but got {record.description}"
                 assert str(record.seq) == exp_sequence, f"Expected: {exp_sequence}, but got {str(record.seq)}"
                 n_line += 1
+                n_reads_in_file += 1
+
+            assert n_reads_in_file == exp_n_reads[i]
+
+def test_split_reads_more_chunks_than_reads(tmp_path):
+
+    infile = "data/ngs/barcodes_counts.txt"
+    sample_name = "test"
+    n_chunks = 6
+    # each chunk should only have at most 2 reads as we only have 5 reads in the data.
+    exp_n_reads = [1,1,1,1,1]
+    
+    split_reads(
+        infile_name=infile, 
+        sample_name=sample_name, 
+        n_chunks=n_chunks, 
+        outdir=tmp_path
+    )
+
+    # read the barcode count and store the sequence in a list and the count
+    # in another list
+    # Initialize empty lists for the two columns
+    sequences = []
+    counts = []
+
+    with open(infile, 'r') as f:
+        for line in f:
+            # Split each line by the tab character
+            seq_value, cnt_value = line.strip().split('\t')
+            
+            sequences.append(seq_value)
+            counts.append(int(cnt_value))
+
+    # to keep track of the code that check the sequences and counts of each reads
+    n_line = 0
+    # -1 because we have more chunks than reads
+    for i in range(n_chunks - 1):
+        # first check the chunk exists
+        fasta_file = f"{tmp_path}/{sample_name}_chunk{i}.fasta"
+        assert os.path.exists(fasta_file)
+
+        with open(fasta_file, 'r') as f:
+
+            # to check the number of reads in each chunk
+            n_reads_in_file = 0
+
+            # Check that the reads in each file is correct,
+            # i.e., the same as those in the infile
+            for record in SeqIO.parse(f, "fasta"):
+                exp_desc = f"READ{n_line} count.{counts[n_line]},sample.{sample_name}"
+                exp_sequence = f"START{sequences[n_line]}"
+                assert record.description == exp_desc, f"Expected: {exp_desc}, but got {record.description}"
+                assert str(record.seq) == exp_sequence, f"Expected: {exp_sequence}, but got {str(record.seq)}"
+                n_line += 1
+                n_reads_in_file += 1
+
+            assert n_reads_in_file == exp_n_reads[i]
+
+    assert not os.path.exists(f"{tmp_path}/{sample_name}_chunk5.fasta")
 
 def test_split_reads_onechunk(tmp_path):
 
     infile = "data/ngs/barcodes_counts.txt"
     sample_name = "test"
-    n_reads_per_chunk = 1
-    exp_n_chunks = 5
+    n_chunks = 1
+    # the chunk should have all the 5 reads
+    exp_n_reads = [5]
     
     split_reads(
         infile_name=infile, 
         sample_name=sample_name, 
-        n_reads_per_chunk=n_reads_per_chunk, 
+        n_chunks=n_chunks, 
         outdir=tmp_path
     )
 
@@ -78,18 +146,29 @@ def test_split_reads_onechunk(tmp_path):
             sequences.append(seq_value)
             counts.append(int(cnt_value))
 
+    # to keep track of the code that check the sequences and counts of each reads
     n_line = 0
-    for i in range(exp_n_chunks):
-        fasta_file = f"{tmp_path}/{sample_name}_chunk{i+1}.fasta"
+    for i in range(n_chunks):
+        # first check the chunk exists
+        fasta_file = f"{tmp_path}/{sample_name}_chunk{i}.fasta"
         assert os.path.exists(fasta_file)
 
         with open(fasta_file, 'r') as f:
+
+            # to check the number of reads in each chunk
+            n_reads_in_file = 0
+
+            # Check that the reads in each file is correct,
+            # i.e., the same as those in the infile
             for record in SeqIO.parse(f, "fasta"):
                 exp_desc = f"READ{n_line} count.{counts[n_line]},sample.{sample_name}"
                 exp_sequence = f"START{sequences[n_line]}"
                 assert record.description == exp_desc, f"Expected: {exp_desc}, but got {record.description}"
                 assert str(record.seq) == exp_sequence, f"Expected: {exp_sequence}, but got {str(record.seq)}"
                 n_line += 1
+                n_reads_in_file += 1
+
+            assert n_reads_in_file == exp_n_reads[i]
 
 def test_combine_read_cnt_map(tmp_path):
     barcode_mapping_file = "data/ngs/unmapped_chunk_1_reads_barcodes.txt"

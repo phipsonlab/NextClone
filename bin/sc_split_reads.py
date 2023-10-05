@@ -1,32 +1,42 @@
 #!/usr/bin/env python
+
 import sys
+import argparse
 import pysam
-from Bio import SeqIO, Seq, SeqRecord
 import os
 
-def split_reads(input_bam_filename, outdir, n_reads_per_chunk, reads_missing_cb_file):
+from Bio import SeqIO, Seq, SeqRecord
+from math import ceil
+
+def split_reads(input_bam_filename, outdir, n_chunks):
+    """
+    Splits unmapped reads into chunks.
+
+    Parameters
+    ----------
+    input_bam_filename : str
+        Name of the BAM file containing the unmapped reads
+    outdir : str
+        Directory where the generated chunk files will be saved.
+    n_chunks : int
+        Specifies the desired number of chunks to divide the reads into.
+    """
 
     pysam.index(input_bam_filename)
 
     # See: https://www.biostars.org/p/6970/
-    bamfile = pysam.Samfile(input_bam_filename, "rb")
+    input_bamfile = pysam.Samfile(input_bam_filename, "rb")
 
     bamfilename = os.path.splitext(os.path.basename(input_bam_filename))[0]
+
+    # mapped and unmapped functions will return the total number of reads
+    n_reads_per_chunk = ceil(input_bamfile.unmapped / n_chunks)
     
     next_chunk_id = 0
     fout = None
     n_row_written = 0
 
-    for row in bamfile:
-
-        # have to check if the tag exists first as some reads appear to be missing CB
-        if not row.has_tag("CB"):
-            # If the conde gets here, n_row_written, won't be updated
-            with open(reads_missing_cb_file, "a") as mcb:
-                mcb.write(row.query_name)
-                mcb.write("\n")
-                continue
-
+    for row in input_bamfile:
         # open a new fasta file to write
         if n_row_written % n_reads_per_chunk == 0:
             if fout is not None:
@@ -46,17 +56,27 @@ def split_reads(input_bam_filename, outdir, n_reads_per_chunk, reads_missing_cb_
             
     if fout is not None:
         fout.close()
-    bamfile.close()
+    
+    input_bamfile.close()
 
 if __name__ == "__main__":
-    input_bam_filename = sys.argv[1]
-    outdir = sys.argv[2]
-    n_reads_per_chunk = int(sys.argv[3])
-    reads_missing_cb_file = sys.argv[4]
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--input_bam_filename", help="BAM file containing the unmapped reads")
+    parser.add_argument("--n_chunks", help="Number chunks to divide the reads into", type=int)
+    parser.add_argument("--outdir", help="Output directory")
+
+    args = parser.parse_args()
+
+    # TODO remove me
+    # input_bam_filename = sys.argv[1]
+    # outdir = sys.argv[2]
+    # n_reads_per_chunk = int(sys.argv[3])
+    # reads_missing_cb_file = sys.argv[4]
 
     split_reads(
-        input_bam_filename=input_bam_filename,
-        outdir=outdir,
-        n_reads_per_chunk=n_reads_per_chunk,
-        reads_missing_cb_file=reads_missing_cb_file
+        input_bam_filename=args.input_bam_filename,
+        outdir=args.outdir,
+        n_chunks=args.n_chunks
     )
