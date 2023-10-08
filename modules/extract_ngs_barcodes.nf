@@ -1,11 +1,8 @@
 #!/usr/bin/env nextflow
 
 process ngs_trim_reads {
-    cpus 8
-    memory '8 GB'
-    time '2 hours'
+    label 'medium'
     conda "${projectDir}/conda_env/trimgalore_env.yaml"
-    publishDir "${params.publish_dir}", mode: 'copy'
     module "cutadapt"
 
     input:
@@ -26,11 +23,8 @@ process ngs_trim_reads {
 }
 
 process ngs_filter_reads {
-    cpus 8
-    memory '8 GB'
-    time '2 hours'
+    label 'medium'
     conda "${projectDir}/conda_env/fastp_env.yaml"
-    publishDir "${params.publish_dir}", mode: 'copy'
 
     input:
         path fastq_file
@@ -52,10 +46,7 @@ process ngs_filter_reads {
 
 process ngs_count_reads {
     // Add dummy adapters, run flexiplex discovery
-    cpus 4
-    memory '8 GB'
-    time '1 hours'
-    publishDir "${params.publish_dir}", mode: 'copy'
+    label 'small'
 
     input:
         path fastq_file
@@ -83,11 +74,8 @@ process ngs_count_reads {
 
 process ngs_split_reads_to_chunks {
     // break up the barcodes into chunks
-    cpus 4
-    memory '8 GB'
-    time '1 hours'
+    label 'small'
     conda "${projectDir}/conda_env/extract_ngs_env.yaml"
-    publishDir "${params.publish_dir}", mode: 'copy'
 
     input:
         path barcode_counts
@@ -112,12 +100,8 @@ process ngs_map_barcodes {
     // Ran flexiplex per fasta chunk
     // Then combine the counting of read (flexiplex discovery)
     // and the mapped barcode
-    cpus 2
-    memory '8 GB'
-    time '96 hours'
-    queue 'long'
+    label "${params.mapping_process_profile}"
     conda "${projectDir}/conda_env/extract_ngs_env.yaml"
-    publishDir "${params.publish_dir}", mode: 'copy'
 
     input:
         path unmapped_fasta
@@ -149,11 +133,8 @@ process ngs_map_barcodes {
 }
 
 process ngs_collapse_barcodes {
-    cpus 1
-    memory '4 GB'
-    time '1 hours'
+    label 'small'
     conda "${projectDir}/conda_env/extract_ngs_env.yaml"
-    publishDir "${params.publish_dir}", mode: 'copy'
 
     input:
         path mapped_reads

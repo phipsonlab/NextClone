@@ -3,10 +3,7 @@
 process sc_get_unmapped_reads {
     // Using sambamba
     module 'sambamba'
-    cpus 12
-    memory '32 GB'
-    time '24 hours'
-    publishDir "$params.publish_dir",  mode: 'copy'
+    label 'medium_mem'
 
     input:
         path bam_file
@@ -22,11 +19,8 @@ process sc_get_unmapped_reads {
 }
 
 process sc_remove_low_qual_reads {
-    cpus 4
-    memory '24 GB'
-    time '1 hours'
+    label 'small_mem'
     conda "${projectDir}/conda_env/extract_sc_env.yaml"
-    publishDir "$params.publish_dir",  mode: 'copy'
     
     input:
         path unmapped_bam
@@ -45,10 +39,7 @@ process sc_remove_low_qual_reads {
 process sc_retain_reads_with_CB_tag {
     // Using sambamba
     module 'sambamba'
-    cpus 12
-    memory '32 GB'
-    time '24 hours'
-    publishDir "$params.publish_dir",  mode: 'copy'
+    label 'medium_mem'
 
     input:
         path bam_file
@@ -71,11 +62,8 @@ process sc_retain_reads_with_CB_tag {
 }
 
 process sc_split_unmapped_reads {
-    cpus 4
-    memory '24 GB'
-    time '3 hours'
+    label 'small_mem'
     conda "${projectDir}/conda_env/extract_sc_env.yaml"
-    publishDir "$params.publish_dir",  mode: 'copy'
 
     input:
         path unmapped_bam 
@@ -99,10 +87,7 @@ process sc_split_unmapped_reads {
 }
 
 process sc_map_unmapped_reads {
-    cpus 2
-    memory '10 GB'
-    time '24 hours'
-    publishDir "${params.publish_dir}/mapped_chunks",  mode: 'copy'
+    label 'regular_mapping'
 
     input:
         path unmapped_fasta
@@ -127,11 +112,8 @@ process sc_map_unmapped_reads {
 }
 
 process sc_merge_barcodes {
-    cpus 4
-    memory '24 GB'
-    time '1 hours'
+    label 'small_mem'
     conda "${projectDir}/conda_env/extract_sc_env.yaml"
-    publishDir "${params.publish_dir}",  mode: 'copy'
 
     input:
         path mapped_reads
