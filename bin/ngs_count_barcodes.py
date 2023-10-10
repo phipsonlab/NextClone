@@ -6,7 +6,7 @@ import sys
 import pandas as pd
 
 def count_barcodes(outdir, chunk_files):
-    print(len(chunk_files))
+    
     if len(chunk_files) == 1:
         df = pd.read_csv(chunk_files[0])
     else:
