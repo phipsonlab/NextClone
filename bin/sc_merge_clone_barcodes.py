@@ -31,6 +31,6 @@ chunks_df = pd.concat(chunks_to_merge)
 
 # Reorder columns
 chunks_df = chunks_df[['CellBarcode', 'CloneBarcode', 'SourceBAMFile',
-                      'ReadId', 'FlankEditDist', 'BarcodeEditDist','UMI']]
+                      'ReadId', 'FlankEditDist', 'BarcodeEditDist']]
 
 chunks_df.to_csv(sys.argv[len(sys.argv)-1], index=False)
