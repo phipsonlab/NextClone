@@ -12,10 +12,10 @@ process ngs_trim_reads {
         path "${out_file}"
 
     script:
-    out_file = fastq_file.getSimpleName() + ".${params.trim_reads_to}bp_5prime.fq.gz"
+    out_file = fastq_file.getSimpleName() + ".${params.barcode_length}bp_5prime.fq.gz"
     
     """
-    trim_galore --hardtrim5 ${params.trim_reads_to} \
+    trim_galore --hardtrim5 ${params.barcode_length} \
                 --cores ${task.cpus} $fastq_file \
                 --gzip
     
@@ -63,7 +63,7 @@ process ngs_count_reads {
     flexiplex \
         -p "START" \
         -T "" \
-        -b 20 \
+        -b ${params.barcode_length} \
         -u 0 \
         -f 0 \
         -n $sample_name \
@@ -118,7 +118,7 @@ process ngs_map_barcodes {
     flexiplex \
         -p "START" \
         -T "" \
-        -b 20 \
+        -b ${params.barcode_length} \
         -u 0 \
         -f 0 \
         -n ${sample_name} \

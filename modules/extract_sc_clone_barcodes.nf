@@ -100,7 +100,7 @@ process sc_map_unmapped_reads {
     flexiplex \
             -p ${params.adapter_5prime_clonmapper} \
             -T ${params.adapter_3prime_clonmapper} \
-            -b 20 \
+            -b ${params.barcode_length} \
             -u 0 \
             -f ${params.adapter_edit_distance} \
             -e ${params.barcode_edit_distance} \
