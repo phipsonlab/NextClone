@@ -13,7 +13,8 @@ for chunk in chunk_files:
 
     df.rename(columns={'CellBarcode': 'CloneBarcode'}, inplace=True)
     df['CellBarcode'] = [x.split('|')[0].split('_')[1] for x in df['Read'].to_numpy()]
-    df['ReadId'] = [x.split('|')[1] for x in df['Read'].to_numpy()]
+    df['UMI'] = [x.split('|')[1].split('_')[1] for x in df['Read'].to_numpy()]
+    df['ReadId'] = [x.split('|')[2] for x in df['Read'].to_numpy()]
 
     # Don't think i need this column as it's a concatenation of cell barcode
     # and read id
@@ -31,6 +32,6 @@ chunks_df = pd.concat(chunks_to_merge)
 
 # Reorder columns
 chunks_df = chunks_df[['CellBarcode', 'CloneBarcode', 'SourceBAMFile',
-                      'ReadId', 'FlankEditDist', 'BarcodeEditDist']]
+                      'ReadId', 'UMI','FlankEditDist', 'BarcodeEditDist']]
 
 chunks_df.to_csv(sys.argv[len(sys.argv)-1], index=False)

@@ -53,7 +53,7 @@ process sc_retain_reads_with_CB_tag {
     """
     #!/usr/bin/bash
     sambamba view \
-        -F "([CB] != null)" \
+        -F "([CB] != null and [UB] != null)" \
         -t ${task.cpus} \
         -f bam \
         -o ${out_bam_file} \
@@ -70,14 +70,11 @@ process sc_split_unmapped_reads {
 
     output:
         path "${outdir}/${unmapped_bam.baseName}_unmapped_chunk_*.fasta"
-        path "${reads_missing_cb_filename}"
 
     script:
         outdir = "${unmapped_bam.baseName}_unmapped_chunks"
-        reads_missing_cb_filename = "${unmapped_bam.baseName}_reads_missing_cb.txt"
     """
     mkdir ${outdir}
-    touch ${reads_missing_cb_filename}
     
     sc_split_reads.py \
         --input_bam_filename ${unmapped_bam} \
@@ -98,14 +95,15 @@ process sc_map_unmapped_reads {
     """
     #!/usr/bin/bash
     flexiplex \
-            -p ${params.adapter_5prime_clonmapper} \
-            -T ${params.adapter_3prime_clonmapper} \
+            -l ${params.adapter_5prime_clonmapper} \
+            -r ${params.adapter_3prime_clonmapper} \
             -b ${params.barcode_length} \
             -u 0 \
             -f ${params.adapter_edit_distance} \
             -e ${params.barcode_edit_distance} \
             -n ${unmapped_fasta.baseName} \
             -k ${params.clone_barcodes_reference} \
+            -p ${task.cpus} \
             $unmapped_fasta
     
     """

@@ -61,12 +61,13 @@ process ngs_count_reads {
     zcat $fastq_file | sed 's/^/START/g' | sed 's/START@/@/g' > ${fastq_w_adapter}
     
     flexiplex \
-        -p "START" \
-        -T "" \
+        -l "START" \
+        -r "" \
         -b ${params.barcode_length} \
         -u 0 \
         -f 0 \
         -n $sample_name \
+        -p ${task.cpus} \
         ${fastq_w_adapter}
     
     """
@@ -116,14 +117,15 @@ process ngs_map_barcodes {
     """
 
     flexiplex \
-        -p "START" \
-        -T "" \
+        -l "START" \
+        -r "" \
         -b ${params.barcode_length} \
         -u 0 \
         -f 0 \
         -n ${sample_name} \
         -k ${params.clone_barcodes_reference} \
         -e ${params.barcode_edit_distance} \
+        -p ${task.cpus} \
         ${unmapped_fasta}
 
     ngs_combine_read_cnt_map.py --unmapped_chunk ${unmapped_fasta} \
