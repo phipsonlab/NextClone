@@ -45,7 +45,7 @@ def split_reads(input_bam_filename, outdir, n_chunks):
             next_chunk_id += 1
 
         # Attach the query name as well 
-        cell_id = f"Cell_{row.get_tag('CB')}|{row.query_name}"
+        cell_id = f"Cell_{row.get_tag('CB')}|UMI_{row.get_tag('UB')}|{row.query_name}"
         seq = Seq.Seq(row.query_sequence)
 
         rec = SeqRecord.SeqRecord(seq, cell_id, "", "")
