@@ -1,13 +1,13 @@
 #!/bin/bash nextflow
 
 include { 
-    ngs_trim_reads;
-    ngs_filter_reads;
-    ngs_count_reads;
-    ngs_split_reads_to_chunks;
-    ngs_map_barcodes;
-    ngs_collapse_barcodes
-} from "./modules/extract_ngs_barcodes"
+    dnaseq_trim_reads;
+    dnaseq_filter_reads;
+    dnaseq_count_reads;
+    dnaseq_split_reads_to_chunks;
+    dnaseq_map_barcodes;
+    dnaseq_collapse_barcodes
+} from "./modules/extract_dnaseq_barcodes"
 
 include { 
     sc_get_unmapped_reads;
@@ -20,15 +20,15 @@ include {
 
 workflow {
 
-    if (params.mode == 'NGS') {
-        ch_barcode_chunks = Channel.fromPath("${params.ngs_fastq_files}/*.fastq.gz") | 
-            ngs_trim_reads |
-            ngs_filter_reads |
-            ngs_count_reads |
-            ngs_split_reads_to_chunks
+    if (params.mode == 'DNAseq') {
+        ch_barcode_chunks = Channel.fromPath("${params.dnaseq_fastq_files}/*.fastq.gz") | 
+            dnaseq_trim_reads |
+            dnaseq_filter_reads |
+            dnaseq_count_reads |
+            dnaseq_split_reads_to_chunks
         
-        ch_barcode_mappings = ngs_map_barcodes(ch_barcode_chunks.flatten())
-        ngs_collapse_barcodes(ch_barcode_mappings.collect())
+        ch_barcode_mappings = dnaseq_map_barcodes(ch_barcode_chunks.flatten())
+        dnaseq_collapse_barcodes(ch_barcode_mappings.collect())
 
     } 
     

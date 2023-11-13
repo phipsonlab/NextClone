@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-process ngs_trim_reads {
+process dnaseq_trim_reads {
     label 'medium'
     conda "${projectDir}/conda_env/trimgalore_env.yaml"
     module "cutadapt"
@@ -22,7 +22,7 @@ process ngs_trim_reads {
     """
 }
 
-process ngs_filter_reads {
+process dnaseq_filter_reads {
     label 'medium'
     conda "${projectDir}/conda_env/fastp_env.yaml"
 
@@ -44,7 +44,7 @@ process ngs_filter_reads {
     """
 }
 
-process ngs_count_reads {
+process dnaseq_count_reads {
     // Add dummy adapters, run flexiplex discovery
     label 'small'
 
@@ -73,10 +73,10 @@ process ngs_count_reads {
     """
 }
 
-process ngs_split_reads_to_chunks {
+process dnaseq_split_reads_to_chunks {
     // break up the barcodes into chunks
     label 'small'
-    conda "${projectDir}/conda_env/extract_ngs_env.yaml"
+    conda "${projectDir}/conda_env/extract_dnaseq_env.yaml"
 
     input:
         path barcode_counts
@@ -89,7 +89,7 @@ process ngs_split_reads_to_chunks {
 
     """
     mkdir ${outdir}
-    ngs_split_reads.py --barcode_file ${barcode_counts} \
+    dnaseq_split_reads.py --barcode_file ${barcode_counts} \
                                 --sample_name ${barcode_counts.baseName} \
                                 --n_chunks ${params.n_chunks} \
                                 --outdir ${outdir}
@@ -97,12 +97,12 @@ process ngs_split_reads_to_chunks {
     """
 }
 
-process ngs_map_barcodes {
+process dnaseq_map_barcodes {
     // Ran flexiplex per fasta chunk
     // Then combine the counting of read (flexiplex discovery)
     // and the mapped barcode
     label "${params.mapping_process_profile}"
-    conda "${projectDir}/conda_env/extract_ngs_env.yaml"
+    conda "${projectDir}/conda_env/extract_dnaseq_env.yaml"
 
     input:
         path unmapped_fasta
@@ -128,15 +128,15 @@ process ngs_map_barcodes {
         -p ${task.cpus} \
         ${unmapped_fasta}
 
-    ngs_combine_read_cnt_map.py --unmapped_chunk ${unmapped_fasta} \
+    dnaseq_combine_read_cnt_map.py --unmapped_chunk ${unmapped_fasta} \
                                 --mapped_chunk ${mapped_chunk} \
                                 --out_file ${out_file}
     """
 }
 
-process ngs_collapse_barcodes {
+process dnaseq_collapse_barcodes {
     label 'small'
-    conda "${projectDir}/conda_env/extract_ngs_env.yaml"
+    conda "${projectDir}/conda_env/extract_dnaseq_env.yaml"
 
     input:
         path mapped_reads
@@ -146,6 +146,6 @@ process ngs_collapse_barcodes {
 
     script:
     """
-    ngs_count_barcodes.py . ${mapped_reads}
+    dnaseq_count_barcodes.py . ${mapped_reads}
     """
 }
