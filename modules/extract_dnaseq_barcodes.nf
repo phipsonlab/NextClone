@@ -2,7 +2,6 @@
 
 process dnaseq_trim_reads {
     label 'medium'
-    conda "${projectDir}/conda_env/trimgalore_env.yaml"
     module "cutadapt"
 
     input:
@@ -24,7 +23,7 @@ process dnaseq_trim_reads {
 
 process dnaseq_filter_reads {
     label 'medium'
-    conda "${projectDir}/conda_env/fastp_env.yaml"
+    conda "${projectDir}/conda_env/extract_dnaseq_env.yaml"
 
     input:
         path fastq_file

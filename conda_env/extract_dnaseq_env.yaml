@@ -1,4 +1,4 @@
-name: extract_ngs_env
+name: extract_dnaseq_env
 channels:
   - conda-forge
   - bioconda
@@ -8,4 +8,5 @@ dependencies:
   - Biopython
   - pandas
   - natsort
-  
+  - trim-galore
+  - fastp
