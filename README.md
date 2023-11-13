@@ -5,7 +5,7 @@ of clonal barcodes from both DNA-seq and scRNAseq data.
 DNA-seq data refers to dedicated DNA barcoding data which exclusively sequences 
 the synthetic lineage tracing clone barcode reads using Next Generation Sequencing.
 
-<p> <img src="Nextclone_diagram_v5.png" width="500"/> </p>
+<p> <img src="docs/assets/Nextclone_diagram_v5.png" width="500"/> </p>
 
 The pipeline comprises two distinct workflows, one for DNA-seq data and the other for scRNAseq data. 
 Both workflows are highly modular and adaptable, with software that can easily be substituted as required, 
