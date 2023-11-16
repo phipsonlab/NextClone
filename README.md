@@ -146,6 +146,25 @@ Explanation:
 * `adapter_5prime_clonmapper`: the sequence for the 5' adapter for your clone barcodes. 
 * `adapter_5prime_clonmapper`: the sequence for the 3' adapter for your clone barcodes. 
 
+## Setting up conda environment
+
+NextClone relies on the following Python packages installed in a conda environment to work:
+
+- python=3.8
+- Biopython
+- pandas
+- natsort
+- trim-galore
+- fastp
+
+If you are running NextClone for the very first time, it will attempt to create a conda environment and install the packages listed above.
+For this to happen, you will need to make sure that conda is installed in the system. 
+
+If you are using slurm, you can load the conda module up by using `module load miniconda3/latest`.
+If this does not work, best contact the team that manages the HPC system to help you out.
+
+In the future, this will be replaced with a singularity container.
+
 <!-- ## Citation -->
 
 <!-- If you use NextClone in your study, please kindly cite our preprint on bioRxiv. -->
