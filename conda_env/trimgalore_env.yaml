@@ -1,8 +1,0 @@
-name: trimgalore
-channels:
-  - conda-forge
-  - bioconda
-  - defaults
-dependencies:
-  - python=3.8
-  - trim-galore
