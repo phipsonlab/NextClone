@@ -28,7 +28,7 @@ For example, using `vim` you can do something like this:
 ```
 %s/>mCHERRY_Barcode_.*\n//n
 ```
-What this will do is get rid of the name of the barcode. 
+What this will do is get rid of the name of the barcode and keep only the sequence. 
 
 Then make sure **at least** the following parameters are set in `nextflow.config` file.
 
@@ -39,11 +39,12 @@ adapter_5prime = "CGATTGACTA"
 adapter_3prime = "TGCTAATGCG"
 ```
 
-If your clone barcode is not 60 bp, change `barcode_length` above to 60.
+If your clone barcode is not 60 bp, change `barcode_length` above.
 
-The sequence for 5' and 3' adapter is from the original splintr protocol.
-If you have asked for some customisation, you *probably* will need this as the sequence is determined by whoever made your library.
-You should ask them for the sequence.
+The sequence for the 5' and 3' adapter is from the original splintr protocol.
+If you have asked for some customisation, you *probably* will have to modify the sequence above. 
+This sequence is determined by whoever made your library.
+Thus you should ask them for the sequence.
 
 Then pull the github code in the `update_flexiplex_again` branch and run.
 
