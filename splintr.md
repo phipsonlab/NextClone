@@ -4,7 +4,7 @@ layout: default
 
 ## Vignette for Splintr library
 
-***WORK IN PROGRESS!***
+***WORK IN PROGRESS! VIGNETTE WILL CHANGE FREQUENTLY.***
 
 If you used the [Splintr](https://doi.org/10.1038/s41586-021-04206-7) library to barcode your cells, follow this vignette to use NextClone.
 
@@ -14,11 +14,13 @@ First thing first:
 2. Set the directory/file path in the config file for the following parameters: 
    1. `publish_dir`
    2. `clone_barcodes_reference`
-   3. `dnaseq_fastq_files` for DNA-seq data or `scrnaseq_bam_files`
+   3. `scrnaseq_bam_files`
 
-Then read on.
+Read the documentations on the homepage, make sure you understand what each of the parameter in the `nextclone.config` file is for.
 
-### For scRNAseq data
+Finally read on.
+
+### For scRNA-seq data
 
 Before running NextClone, make sure you run cellranger first, and copy out the `possorted_genome_bam` file in the `outs` folder.
 
@@ -45,6 +47,9 @@ The sequence for the 5' and 3' adapter is from the original splintr protocol.
 If you have asked for some customisation, you *probably* will have to modify the sequence above. 
 This sequence is determined by whoever made your library.
 Thus you should ask them for the sequence.
+
+If you do not want to use the 3' adapter, i.e., you want the barcode to be identified just based on the 5' adapter, you can set the `adater_3prime` to `""` (empty string). 
+By default, Nextclone will then only use the 5' adapter to look for the clone barcodes.
 
 Then pull the github code in the `update_flexiplex_again` branch and run.
 

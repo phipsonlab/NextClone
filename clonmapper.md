@@ -12,9 +12,11 @@ First thing first:
 2. Set the directory/file path in the config file for the following parameters: 
    1. `publish_dir`
    2. `clone_barcodes_reference`
-   3. `dnaseq_fastq_files` for DNA-seq data or `scrnaseq_bam_files`
+   3. `dnaseq_fastq_files` for DNA-seq data or `scrnaseq_bam_files` for scRNA-seq data.
 
-Then read on.
+Read the documentations on the homepage, make sure you understand what each of the parameter in the `nextclone.config` file is for.
+
+Finally read on.
 
 ### For DNA-seq data
 
@@ -33,7 +35,7 @@ Then pull the github code in the main branch and run.
 nextflow run phipsonlab/Nextclone -r main
 ```
 
-### For scRNAseq data
+### For scRNA-seq data
 
 Before running NextClone, make sure you run cellranger first, and copy out the `possorted_genome_bam` file in the `outs` folder.
 
