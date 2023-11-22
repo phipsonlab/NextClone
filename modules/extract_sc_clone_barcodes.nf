@@ -95,8 +95,8 @@ process sc_map_unmapped_reads {
     """
     #!/usr/bin/bash
     flexiplex \
-            -l ${params.adapter_5prime_clonmapper} \
-            -r ${params.adapter_3prime_clonmapper} \
+            -l "${params.adapter_5prime_clonmapper}" \
+            -r "${params.adapter_3prime_clonmapper}" \
             -b ${params.barcode_length} \
             -u 0 \
             -f ${params.adapter_edit_distance} \
