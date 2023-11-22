@@ -96,10 +96,10 @@ process sc_map_unmapped_reads {
     #!/usr/bin/bash
 
     flexiplex \
-            -x ${params.adapter_5prime} \
+            -x "${params.adapter_5prime}" \
             -b ${params.barcode_length_chr} \
             -u "" \
-            -x ${params.adapter_3prime} \
+            -x "${params.adapter_3prime}" \
             -f ${params.adapter_edit_distance} \
             -e ${params.barcode_edit_distance} \
             -n ${unmapped_fasta.baseName} \
