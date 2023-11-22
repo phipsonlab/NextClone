@@ -1,5 +1,7 @@
 #!/bin/bash nextflow
 
+params.barcode_length_chr = '?' * params.barcode_length
+
 include { 
     dnaseq_trim_reads;
     dnaseq_filter_reads;
