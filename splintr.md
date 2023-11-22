@@ -24,13 +24,22 @@ Finally read on.
 
 Before running NextClone, make sure you run cellranger first, and copy out the `possorted_genome_bam` file in the `outs` folder.
 
+#### Creating clone barcode reference file
+
 After you downloaded the FASTA file containing the reference clone barcodes, make sure you convert them to a normal text file where each line denote only the sequence for a clone barcode.
+
 You can do this using a regex replacement. 
 For example, using `vim` you can do something like this:
 ```
-%s/>mCHERRY_Barcode_.*\n//n
+%s/>mCHERRY_Barcode_.*\n//g
 ```
 What this will do is get rid of the name of the barcode and keep only the sequence. 
+
+Alternatively, use text editor like VS code or sublime text and use similar regex replacement.
+
+In the future, we may add support for parsing FASTA file as the clone barcode reference.
+
+#### Setting the parameters
 
 Then make sure **at least** the following parameters are set in `nextflow.config` file.
 
