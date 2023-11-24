@@ -84,7 +84,7 @@ process sc_split_unmapped_reads {
 }
 
 process sc_map_unmapped_reads {
-    label 'regular_mapping'
+    label "${params.mapping_process_profile}"
 
     input:
         path unmapped_fasta
