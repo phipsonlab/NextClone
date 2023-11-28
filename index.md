@@ -18,12 +18,32 @@ It is heavily optimised for usage in high-performance computing (HPC) platforms.
 
 ## Usage
 
-See the following vignette for various barcoding libraries:
+In general, to run the pipeline, you can use the following command:
+
+```
+nextflow run phipsonlab/Nextclone -r main
+```
+
+However, chances are you will need to adjust some of the default parameters
+in `nextflow.config` file. 
+Read on to find out what parameters there are and what do they mean.
+
+Additionally, see the following more specific insturcitons for extracting
+clone barcodes from various barcoding libraries:
 
 1. [For ClonMapper library](./clonmapper.html)
 2. [For splintr library](./splintr.html)
 
-Make sure you also read the remaining documentation!
+## Output
+
+For DNAseq data, you will get a `clone_barcode_counts.csv` file in the folder you
+nominated as the `publish_dir` parameter.
+For this csv file, each row corresponds to a unique clone barcode and its frequency in the sample. 
+
+For scRNAseq data, you will get a `clone_barcodes.csv` file in the folder you
+nominated as the `publish_dir` parameter.
+For this csv file, each row corresponds to a read associated with a 10x cell barcode, a UMI, and a clone barcode.
+
 
 ## Clone barcode reference file
 
