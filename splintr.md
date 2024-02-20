@@ -10,8 +10,8 @@ If you used the [Splintr](https://doi.org/10.1038/s41586-021-04206-7) library to
 
 First thing first:
 
-1. Copy the `nextflow.config` file on our github repository: https://github.com/phipsonlab/NextClone.
-2. Set the directory/file path in the config file for the following parameters: 
+1. Clone the repository from github: https://github.com/phipsonlab/NextClone.
+2. Set the directory/file path in the `nextflow.config` file for the following parameters: 
    1. `publish_dir`
    2. `clone_barcodes_reference`
    3. `scrnaseq_bam_files`
@@ -60,10 +60,10 @@ Thus you should ask them for the sequence.
 If you do not want to use the 3' adapter, i.e., you want the barcode to be identified just based on the 5' adapter, you can set the `adater_3prime` to `""` (empty string). 
 By default, Nextclone will then only use the 5' adapter to look for the clone barcodes.
 
-Then pull the github code in the `update_flexiplex_again` branch and run.
+Then run `main.nf` file.
 
 ```
-nextflow run phipsonlab/Nextclone -r update_flexiplex_again
+nextflow run main.nf
 ```
 
 [back](./)
