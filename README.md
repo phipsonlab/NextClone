@@ -1,4 +1,4 @@
-# NextClone
+# NextClone [![DOI](https://zenodo.org/badge/679986518.svg)](https://doi.org/10.5281/zenodo.15686558)
 
 NextClone is a Nextflow pipeline to facilitate rapid extraction and quantification 
 of clonal barcodes from both DNA-seq and scRNAseq data.
